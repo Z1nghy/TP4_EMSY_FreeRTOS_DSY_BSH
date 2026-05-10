@@ -19,3 +19,9 @@ LED1 (C2 - Vert) : Interruption Timer (mesure de température).
 LED2 (C3 - Orange) : Tâche de fond (lecture et affichage).
 
 Sur l’Image, on observe clairement que la tâche de fond (C3) s'arrête de traiter les données alors que les interruptions (C1 et C2) continuent de s'exécuter
+
+
+voici ce que nous avons mesuré lors de coiper-coller de beaucou de H :
+<img width="1280" height="824" alt="image" src="https://github.com/user-attachments/assets/93a71abd-cf26-4e9b-bb2d-9ab40f74ef38" />
+
+Le problème est systématique lors d'un "copier-coller" massif. Cela indique une condition de course ou une corruption de ressources partagées liée à la charge
