@@ -1,8 +1,9 @@
 # TP4_EMSY_FreeRTOS_DSY_BSH
+## Partie 1 sans OS
 
 voici les configurations à mettre dans putty :
 le serial com : a vous de voir le votre
-la vitesse de lecture : 
+la vitesse de lecture : 9600 baud
 Data nits : 
 Stop bits : 
 Parité : None
@@ -38,13 +39,53 @@ Le problème majeur est la non-réentrance de la fonction d'écriture dans le FI
 
 En termes de solutions, je propose soit de masquer sélectivement les interruptions en montant temporairement le niveau de priorité des IRQ susceptibles d'accéder au FIFO, soit de séparer les FIFOs par source en attribuant un FIFO distinct à chaque interruption, éliminant ainsi toute contention sans nécessiter de section critique.
 
+## Partie 1 avec OS
 
+Nous allons aussi utilliser PuTTY avec la configuration suivante:
 
+ - Le Serial com :  Celle que vous avez sur le gestionaire de peripherique
+ - la vitesse de lecture : 9600 baud
+ - Data bits : 8
+ - Stop bits : 1
+ - Parity : None
+ - Flow Control : XON/XOFF
 
+Voici la configuration de mesure:
+  - Chanel 1 sur l'interruption du timer (LED ...)
+  - Chanel 2 sur l'interruption de l'UART (LED ...)
+  - Chanel 3 sur l'App LCD (LED ...)
+  - Chanel 4 sur l'app temp (LED ...)
+  - Chanel 1 et 4 sont à 5V/div
+  - CHanel 2 et 3 sont é 2V/div
+  - Trigger sir le Chanel 2
+  - Base de temps à 20ms
+  - 
+### Saisie de un charactère 
+Voci donc notre mesure lorsque un seule charactère est envoyé à la fois:
+<img width="1280" height="824" alt="image (2)" src="https://github.com/user-attachments/assets/93b2a2b1-2bde-44ad-9e08-4c8f16a59256" />
 
+Nous pouvons voir clairement lorsqu'il y a un charactère qui est envoyé par le temps bas du chanel 2.
 
+Chanel 1 :
+  Ce signal fait des impulsions courtes périodiques toutes les 100 ms. Dans son ISR, il remet le sémaphore binaire avec la    fonction "xSemaphoreGiveFromISR" afin de débloquer et réveiller la tâche d'acquisition de température.
+  
+Chanel 2 :
+  Ce signal passe à l’état bas au moment précis où un caractère ASCII arrive sur le port série depuis PuTTY. L’interruption   UART capte directement ce caractère, l’encapsule dans le format de message prévu (« MSG_TYPE_CHAR » ) et l’envoie dans la   file partagée grâce à la fonction « xQueueSendFromISR »
+  
+Chanel 3 :
+  On voit que ce signal est beaucoup appelé, c'est pour cela que nous voyons ce signal "toggelé", ce signal est celui de   l'application LCD qui va afficher cur le LDC la temperture lues ainsi que le charactère recu.
 
+Chanel 4 : 
+  Ce signal passe à l'état haut pendant une durée fixe d'environ 40 ms. Nous pouvons voir qu'il est un peu en retard par      rapport au Chanel 1 ce qui montre bien que le chanel 1 lui sort de son etat bloqueé, ce qui fais prendre la temperature     le SPI et l'envoi pour l'afficher sur le LCD.
+  
+### Saisie de plusieure charactère
+Voci donc notre mesure lorsque plusieure charactère est envoyé à la fois:
 
+<img width="1280" height="824" alt="image (3)" src="https://github.com/user-attachments/assets/2702dd50-e9f7-4a1a-ba23-0cd901451775" />
+ 
+Chanel 2 :
+  On observe un gros bloc vert compact, qui descend à l'état bas pendant environ 35 ms. Cela montre que l'interruption UART   s'exécute de façon quasi continue à cause du débit d'octets arrivant en rafale. L'interruption traite et empile tous les   caractères dans la file d'attente à la suite les uns des autres.
+  
 
 
 
