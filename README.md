@@ -39,7 +39,7 @@ Le problème majeur est la non-réentrance de la fonction d'écriture dans le FI
 
 En termes de solutions, je propose soit de masquer sélectivement les interruptions en montant temporairement le niveau de priorité des IRQ susceptibles d'accéder au FIFO, soit de séparer les FIFOs par source en attribuant un FIFO distinct à chaque interruption, éliminant ainsi toute contention sans nécessiter de section critique.
 
-## Partie 1 avec OS
+## Partie 2 avec OS
 
 Nous allons aussi utilliser PuTTY avec la configuration suivante:
 
